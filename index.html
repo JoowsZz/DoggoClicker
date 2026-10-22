@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doggo Clicker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="./img/cachorro_pixel_1x.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="game">
+        <h1><img src="./img/logo doggo.png" alt="Doguinhologo" height="150"></h1>
+
+       <p class="subtitle">O melhor amigo em 8 bits</p>
+       <div class="goal-banner" id="goal-banner">
+           <span class="goal-sparkle" aria-hidden="true">✨</span>
+           <p>OBJETIVO: <strong>20 DOGUINHOS</strong></p>
+           <span class="goal-sparkle" aria-hidden="true">✨</span>
+       </div>
+
+       <section class="game-screen" aria-label="Jogo Doggo Clicker">
+           <p class="population">População: <strong id="population">1</strong></p>
+           <p class="instruction" id="game-message" aria-live="polite">Clique no doguinho para multiplicar!</p>
+           <div class="dog-park" id="dog-park" aria-label="Doguinho">
+               <button class="dog" type="button" aria-label="Doguinho, clique para duplicar">
+                   <img src="img/cachorro_pixel_1x.png" alt="" draggable="false">
+               </button>
+           </div>
+       </section>
+
+       <button id="reset-button" class="utility-button" type="button">↻ Recomeçar</button>
+       <button id="sound-button" class="utility-button" type="button" aria-pressed="true">🔊 Som: ligado</button>
+
+    </main>
+    <dialog class="victory-dialog" id="victory-dialog" aria-labelledby="victory-title">
+        <div class="victory-card">
+            <span class="victory-confetti" aria-hidden="true">🎉 <img src="./img/cachorro_pixel_8x.png" alt="Doguinho" height="100"> 🎊</span>
+            <p class="victory-eyebrow">MISSÃO CUMPRIDA</p>
+            <h2 id="victory-title">Você conseguiu!</h2>
+            <p class="victory-message">A matilha chegou a <strong>20 doguinhos</strong>!</p>
+            <p class="victory-cheer">Au au! Você é demais! 🐾</p>
+            <button id="play-again-button" class="play-again-button" type="button">
+                Jogar de novo
+            </button>
+        </div>
+    </dialog>
+    <script src="script.js"></script>
+    
+</body>
+</html>
