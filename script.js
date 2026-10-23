@@ -48,9 +48,15 @@ let turboFireInterval;
 function startBackgroundMusic(track) {
     musicUnlocked = true;
     if (!track) {
-        track = document.body.classList.contains("turbo-mode")
-            ? turboMusicTrack
-            : backgroundMusicTracks[Math.floor(Math.random() * backgroundMusicTracks.length)];
+        if (document.body.classList.contains("turbo-mode")) {
+            track = turboMusicTrack;
+        } else {
+            const currentTrack = backgroundMusic.getAttribute("src");
+            if (!backgroundMusic.paused && backgroundMusicTracks.includes(currentTrack)) {
+                return;
+            }
+            track = backgroundMusicTracks[Math.floor(Math.random() * backgroundMusicTracks.length)];
+        }
     }
     if (!soundEnabled || (backgroundMusic.getAttribute("src") === track && !backgroundMusic.paused)) {
         return;
