@@ -1,5 +1,6 @@
 body {
-    background: linear-gradient(145deg, #efa9ae, #c58286);
+    background-image: url("./img/fundoverde.png");
+    background-size: cover;
     color: #fff8ff;
     font-family: "Comic Relief", cursive;
     text-align: center;
@@ -143,6 +144,7 @@ body {
     image-rendering: pixelated;
     user-select: none;
     height: 100%;
+    filter: drop-shadow(2px 3px 2px rgb(55 25 35 / 28%));
 }
 
 
@@ -489,10 +491,6 @@ body.turbo-mode .volume-pot::before {
     box-shadow: 0 10px 0 #9f5d70, 0 0 50px rgb(255 244 168 / 65%);
 }
 
-.victory-dialog[open] {
-    animation: victory-enter 350ms cubic-bezier(.2, 1.4, .5, 1) both;
-}
-
 .victory-dialog.turbo-victory {
     border-color: #ffd27a;
     background: linear-gradient(145deg, #f2b4a4, #d99485);
@@ -522,7 +520,6 @@ body.turbo-mode .volume-pot::before {
 .victory-dialog::backdrop {
     background: rgb(52 27 56 / 70%);
     backdrop-filter: blur(5px);
-    animation: backdrop-enter 250ms ease-out both;
 }
 
 .victory-card {
@@ -533,7 +530,6 @@ body.turbo-mode .volume-pot::before {
     display: block;
     margin-bottom: 8px;
     font-size: 36px;
-    animation: sparkle 500ms ease-in-out infinite alternate;
 }
 
 .victory-eyebrow {
@@ -573,45 +569,20 @@ body.turbo-mode .volume-pot::before {
     font-size: 17px;
     font-weight: 700;
     box-shadow: 0 5px 0 #603b68;
-    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    transition: none;
 }
 
 .play-again-button:hover {
-    transform: translateY(-2px);
     background: #70427b;
-    box-shadow: 0 7px 0 #603b68;
 }
 
 .play-again-button:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0 #603b68;
+    box-shadow: 0 5px 0 #603b68;
 }
 
 .play-again-button:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 4px;
-}
-
-@keyframes victory-enter {
-    from {
-        opacity: 0;
-        transform: scale(.75) translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-@keyframes backdrop-enter {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
 }
 
 @media (max-width: 480px) {
@@ -652,10 +623,6 @@ body.turbo-mode .volume-pot::before {
     .goal-banner,
     .goal-sparkle,
     .goal-banner.completed,
-    .victory-dialog[open],
-    .victory-dialog.turbo-victory[open],
-    .victory-dialog::backdrop,
-    .victory-confetti,
     .turbo-announcement,
     .turbo-particle {
         animation: none;
