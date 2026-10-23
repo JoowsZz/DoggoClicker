@@ -1,20 +1,94 @@
 const dogPark = document.querySelector("#dog-park");
 const populationDisplay = document.querySelector("#population");
+const goalProgressDisplay = document.querySelector("#goal-progress");
 const gameMessage = document.querySelector("#game-message");
 const soundButton = document.querySelector("#sound-button");
+const backgroundMusic = document.querySelector("#background-music");
+const musicVolume = document.querySelector("#music-volume");
+const musicVolumeValue = document.querySelector("#music-volume-value");
 const resetButton = document.querySelector("#reset-button");
 const goalBanner = document.querySelector("#goal-banner");
 const victoryDialog = document.querySelector("#victory-dialog");
+const victoryGoalDisplay = document.querySelector("#victory-goal");
+const victoryEyebrow = document.querySelector("#victory-eyebrow");
+const victoryCheer = document.querySelector("#victory-cheer");
 const playAgainButton = document.querySelector("#play-again-button");
+const playAgainLabel = document.querySelector("#play-again-label");
 const firstDog = dogPark.querySelector(".dog").cloneNode(true);
 const happyDogImage = "img/cachorro_pixel_feliz.png";
 const maximumPopulation = 100;
-const goalPopulation = 20;
+const normalGoalPopulation = 20;
+const turboGoalPopulation = 40;
+const turboDogChance = 0.03;
+const turboDogImage = "img/cachorro_turbo_leve_1x.png";
+const turboFireDogImage = "img/cachorro_fogo_1x.png";
+const turboDurationMs = 15_000;
+const turboFireFrames = [
+    "img/fogo_frame_1.jpg",
+    "img/fogo_frame_2.jpg",
+    "img/fogo_frame_3.jpg",
+    "img/fogo_frame_4.jpg"
+];
+const backgroundMusicTracks = ["assets/game-music.mp3", "assets/dogsong.mp3"];
+const turboMusicTrack = "assets/turbo-music.mp3";
+const turboAnnouncement = document.querySelector("#turbo-announcement");
+const turboParticles = document.querySelector("#turbo-particles");
 
 let population = 1;
+let goalProgress = 1;
+let turboGoalCycle = false;
 let soundEnabled = true;
+let musicUnlocked = false;
 let audioContext;
 let goalReached = false;
+let turboTimeout;
+let announcementTimeout;
+let turboFireInterval;
+
+function startBackgroundMusic(track) {
+    musicUnlocked = true;
+    if (!track) {
+        track = document.body.classList.contains("turbo-mode")
+            ? turboMusicTrack
+            : backgroundMusicTracks[Math.floor(Math.random() * backgroundMusicTracks.length)];
+    }
+    if (!soundEnabled || (backgroundMusic.getAttribute("src") === track && !backgroundMusic.paused)) {
+        return;
+    }
+
+    if (backgroundMusic.getAttribute("src") !== track) {
+        backgroundMusic.pause();
+        backgroundMusic.src = track;
+    }
+    backgroundMusic.volume = Number(musicVolume.value) / 100;
+    backgroundMusic.play().catch((error) => {
+        if (error.name === "AbortError") {
+            return;
+        }
+        console.error("Não foi possível iniciar a música de fundo:", error);
+    });
+}
+
+function updateMusicVolume() {
+    const volume = Number(musicVolume.value);
+    backgroundMusic.volume = volume / 100;
+    musicVolumeValue.value = `${volume}%`;
+    musicVolume.setAttribute("aria-valuetext", `${volume}%`);
+    musicVolume.parentElement.style.setProperty("--volume-angle", `${-135 + volume * 2.7}deg`);
+    musicVolume.parentElement.style.setProperty("--volume-sweep", `${volume * 2.7}deg`);
+}
+
+function syncBackgroundMusic() {
+    if (!soundEnabled || (population <= 1 && !document.body.classList.contains("turbo-mode"))) {
+        backgroundMusic.pause();
+        return;
+    }
+
+    startBackgroundMusic();
+}
+
+updateMusicVolume();
+musicVolume.addEventListener("input", updateMusicVolume);
 
 function playBark() {
     if (!soundEnabled || !window.AudioContext) {
@@ -109,20 +183,43 @@ function celebrateGoal() {
 
     goalReached = true;
     goalBanner.classList.add("completed");
+    const goalTarget = turboGoalCycle
+        ? turboGoalPopulation
+        : normalGoalPopulation;
+    const turboVictory = turboGoalCycle;
+    victoryDialog.classList.toggle("turbo-victory", turboVictory);
+    victoryEyebrow.textContent = turboVictory ? "MODO TURBO CONCLUÍDO" : "MISSÃO CUMPRIDA";
+    document.querySelector("#victory-title").textContent = turboVictory ? "Turbo concluído!" : "Você conseguiu!";
+    victoryGoalDisplay.textContent = `${goalTarget} doguinhos`;
+    victoryCheer.textContent = turboVictory ? "Au au! Você reuniu 40 doguinhos turbo! 🐾" : "Au au! Você é demais! 🐾";
+    playAgainLabel.textContent = turboVictory ? "Jogar novamente" : "Jogar de novo";
     gameMessage.textContent = "🎉 OBJETIVO ALCANÇADO! VOCÊ CONSEGUIU! 🎉";
     playCelebration();
     victoryDialog.showModal();
 }
 
+function updateGoalProgressDisplay() {
+    const goalTarget = turboGoalCycle
+        ? turboGoalPopulation
+        : normalGoalPopulation;
+    goalProgressDisplay.textContent = `${goalProgress}/${goalTarget}`;
+}
+
 function resetGame() {
+    endTurboMode(false);
+    victoryDialog.classList.remove("turbo-victory");
     const dog = firstDog.cloneNode(true);
     dogPark.replaceChildren(dog);
     placeDogRandomly(dog);
     population = 1;
+    goalProgress = 1;
+    turboGoalCycle = false;
     goalReached = false;
     goalBanner.classList.remove("completed");
     populationDisplay.textContent = population;
+    updateGoalProgressDisplay();
     gameMessage.textContent = "Clique no doguinho para multiplicar!";
+    syncBackgroundMusic();
 }
 
 function updatePopulationDisplay(previousPopulation) {
@@ -183,6 +280,122 @@ function placeDogRandomly(dog) {
     dog.style.top = `${position.y}px`;
 }
 
+function createDog() {
+    const dog = firstDog.cloneNode(true);
+    const turboModeActive = document.body.classList.contains("turbo-mode");
+    const hasTurboDog = dogPark.querySelector(".dog.is-turbo-dog");
+    const isTurboSpawn = !turboModeActive && Math.random() < turboDogChance;
+
+    if (!hasTurboDog && isTurboSpawn) {
+        dog.classList.add("is-turbo-dog");
+        dog.setAttribute("aria-label", "Doguinho Turbo, clique para ativar o Modo Turbo Au-Au");
+        dog.querySelector("img").src = turboDogImage;
+    } else if (turboModeActive) {
+        applyTurboDogAppearance(dog);
+    }
+
+    return dog;
+}
+
+function applyTurboDogAppearance(dog) {
+    if (dog.classList.contains("is-turbo-dog")) {
+        return;
+    }
+
+    const image = dog.querySelector("img");
+    image.dataset.normalSource ??= image.getAttribute("src");
+    image.src = turboFireDogImage;
+    dog.classList.add("is-fire-dog");
+}
+
+function restoreNormalDogAppearance(dog) {
+    if (!dog.classList.contains("is-fire-dog")) {
+        return;
+    }
+
+    const image = dog.querySelector("img");
+    image.src = image.dataset.normalSource;
+    delete image.dataset.normalSource;
+    dog.classList.remove("is-fire-dog");
+}
+
+function updateDogsForTurboMode(isActive) {
+    dogPark.querySelectorAll(".dog").forEach((dog) => {
+        if (isActive) {
+            applyTurboDogAppearance(dog);
+        } else {
+            restoreNormalDogAppearance(dog);
+        }
+    });
+}
+
+function createTurboParticles() {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    turboParticles.replaceChildren();
+
+    if (prefersReducedMotion) {
+        return;
+    }
+
+    for (let index = 0; index < 18; index += 1) {
+        const particle = document.createElement("span");
+        particle.className = "turbo-particle";
+        particle.style.setProperty("--x", `${Math.random() * 100}vw`);
+        particle.style.setProperty("--y", `${Math.random() * 100}vh`);
+        particle.style.setProperty("--drift", `${Math.random() * 100 - 50}px`);
+        turboParticles.append(particle);
+    }
+}
+
+function activateTurboMode() {
+    window.clearTimeout(turboTimeout);
+    window.clearTimeout(announcementTimeout);
+    window.clearInterval(turboFireInterval);
+    document.body.classList.add("turbo-mode");
+    dogPark.querySelectorAll(".dog.is-turbo-dog").forEach((dog) => dog.remove());
+    updateDogsForTurboMode(true);
+    goalProgress = 0;
+    turboGoalCycle = true;
+    goalReached = false;
+    goalBanner.classList.remove("completed");
+    updateGoalProgressDisplay();
+    let fireFrame = 0;
+    document.body.style.setProperty("--turbo-fire-frame", `url("${turboFireFrames[fireFrame]}")`);
+    turboFireInterval = window.setInterval(() => {
+        fireFrame = (fireFrame + 1) % turboFireFrames.length;
+        document.body.style.setProperty("--turbo-fire-frame", `url("${turboFireFrames[fireFrame]}")`);
+    }, 120);
+    turboAnnouncement.hidden = true;
+    turboAnnouncement.getBoundingClientRect();
+    turboAnnouncement.hidden = false;
+    createTurboParticles();
+
+    announcementTimeout = window.setTimeout(() => {
+        turboAnnouncement.hidden = true;
+    }, 2600);
+    turboTimeout = window.setTimeout(endTurboMode, turboDurationMs);
+}
+
+function endTurboMode(checkNormalGoal = true) {
+    window.clearTimeout(turboTimeout);
+    window.clearTimeout(announcementTimeout);
+    window.clearInterval(turboFireInterval);
+    turboTimeout = undefined;
+    announcementTimeout = undefined;
+    turboFireInterval = undefined;
+    document.body.classList.remove("turbo-mode");
+    document.body.style.removeProperty("--turbo-fire-frame");
+    updateDogsForTurboMode(false);
+    turboAnnouncement.hidden = true;
+    turboParticles.replaceChildren();
+    updateGoalProgressDisplay();
+    const goalTarget = turboGoalCycle ? turboGoalPopulation : normalGoalPopulation;
+    if (checkNormalGoal && goalProgress >= goalTarget) {
+        celebrateGoal();
+    }
+    syncBackgroundMusic();
+}
+
 function keepDogsInBounds() {
     dogPark.querySelectorAll(".dog").forEach((dog) => {
         const maxX = Math.max(0, dogPark.clientWidth - dog.offsetWidth);
@@ -208,10 +421,15 @@ dogPark.addEventListener("click", (event) => {
     ) {
         return;
     }
-
     clickedDog.classList.add("is-processing");
+    const isTurboDog = clickedDog.classList.contains("is-turbo-dog");
+    if (isTurboDog) {
+        activateTurboMode();
+    }
     playBark();
-    clickedDog.querySelector("img").src = happyDogImage;
+    if (!isTurboDog && !document.body.classList.contains("turbo-mode")) {
+        clickedDog.querySelector("img").src = happyDogImage;
+    }
     clickedDog.classList.add("is-happy");
     window.setTimeout(() => {
         if (!clickedDog.isConnected) {
@@ -229,13 +447,20 @@ dogPark.addEventListener("click", (event) => {
     );
 
     for (let index = 0; index < duplicates; index += 1) {
-        const dog = firstDog.cloneNode(true);
+        const dog = createDog();
         dogPark.append(dog);
         placeDogRandomly(dog);
     }
 
     const previousPopulation = population;
     population = population - 1 + duplicates;
+    if (!isTurboDog) {
+        goalProgress = turboGoalCycle
+            ? Math.min(goalProgress + duplicates, turboGoalPopulation)
+            : population;
+    }
+    updateGoalProgressDisplay();
+    syncBackgroundMusic();
     updatePopulationDisplay(previousPopulation);
     if (population >= maximumPopulation) {
         gameMessage.textContent = "A matilha está completa!";
@@ -245,13 +470,21 @@ dogPark.addEventListener("click", (event) => {
             : `Nasceram mais ${duplicates} doguinhos!`;
     }
 
-    if (population >= goalPopulation) {
+    const goalTarget = turboGoalCycle
+        ? turboGoalPopulation
+        : normalGoalPopulation;
+    if (goalProgress >= goalTarget) {
         celebrateGoal();
     }
 });
 
 soundButton.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
+    if (soundEnabled && musicUnlocked && (population > 1 || document.body.classList.contains("turbo-mode"))) {
+        startBackgroundMusic();
+    } else {
+        backgroundMusic.pause();
+    }
     soundButton.setAttribute("aria-pressed", soundEnabled);
     soundButton.textContent = soundEnabled ? "🔊 Som: ligado" : "🔇 Som: desligado";
 });

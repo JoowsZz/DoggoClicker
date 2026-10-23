@@ -18,7 +18,7 @@
        <p class="subtitle">O melhor amigo em 8 bits</p>
        <div class="goal-banner" id="goal-banner">
            <span class="goal-sparkle" aria-hidden="true">✨</span>
-           <p>OBJETIVO: <strong>20 DOGUINHOS</strong></p>
+           <p>OBJETIVO: <strong id="goal-progress">1/20</strong> DOGUINHOS</p>
            <span class="goal-sparkle" aria-hidden="true">✨</span>
        </div>
 
@@ -31,20 +31,34 @@
                </button>
            </div>
        </section>
+       <p class="turbo-announcement" id="turbo-announcement" aria-live="assertive" hidden>
+           MODO TURBO AU-AU 🔥🔥
+       </p>
+       <div class="turbo-particles" id="turbo-particles" aria-hidden="true"></div>
 
        <button id="reset-button" class="utility-button" type="button">↻ Recomeçar</button>
+       <div class="music-volume">
+           <label for="music-volume">Música</label>
+           <div class="volume-pot">
+               <span class="volume-pot-indicator" aria-hidden="true"></span>
+               <input id="music-volume" type="range" min="0" max="100" value="35"
+                   aria-label="Volume da música" aria-valuetext="35%">
+           </div>
+           <output id="music-volume-value" for="music-volume">35%</output>
+       </div>
        <button id="sound-button" class="utility-button" type="button" aria-pressed="true">🔊 Som: ligado</button>
+       <audio id="background-music" src="assets/game-music.mp3" loop preload="none"></audio>
 
     </main>
     <dialog class="victory-dialog" id="victory-dialog" aria-labelledby="victory-title">
         <div class="victory-card">
             <span class="victory-confetti" aria-hidden="true">🎉 <img src="./img/cachorro_pixel_8x.png" alt="Doguinho" height="100"> 🎊</span>
-            <p class="victory-eyebrow">MISSÃO CUMPRIDA</p>
+            <p class="victory-eyebrow" id="victory-eyebrow">MISSÃO CUMPRIDA</p>
             <h2 id="victory-title">Você conseguiu!</h2>
-            <p class="victory-message">A matilha chegou a <strong>20 doguinhos</strong>!</p>
-            <p class="victory-cheer">Au au! Você é demais! 🐾</p>
+            <p class="victory-message">Você reuniu <strong id="victory-goal">20 doguinhos</strong>!</p>
+            <p class="victory-cheer" id="victory-cheer">Au au! Você é demais! 🐾</p>
             <button id="play-again-button" class="play-again-button" type="button">
-                Jogar de novo
+                <span id="play-again-label">Jogar de novo</span>
             </button>
         </div>
     </dialog>
