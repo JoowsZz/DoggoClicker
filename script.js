@@ -23,16 +23,23 @@ const turboDogChance = 0.03;
 const turboDogImage = "img/cachorro_turbo_leve_1x.png";
 const turboFireDogImage = "img/cachorro_fogo_1x.png";
 const turboDurationMs = 15_000;
-const turboFireFrames = [
-    "img/fogo_frame_1.jpg",
-    "img/fogo_frame_2.jpg",
-    "img/fogo_frame_3.jpg",
-    "img/fogo_frame_4.jpg"
+const turboLightningBolts = [
+    "raios/raio_A_descida_impacto_05 (1).png",
+    "raios/raio_A_descida_impacto_06 (1).png",
+    "raios/raio_A_descida_impacto_07 (1).png",
+    "raios/raio_A_descida_impacto_08 (1).png",
+    "raios/raio_B_ramificado_01 (1).png",
+    "raios/raio_B_ramificado_02 (1).png",
+    "raios/raio_B_ramificado_03 (1).png",
+    "raios/raio_B_ramificado_04 (1).png"
 ];
 const backgroundMusicTracks = ["assets/game-music.mp3", "assets/dogsong.mp3"];
 const turboMusicTrack = "assets/turbo-music.mp3";
 const turboAnnouncement = document.querySelector("#turbo-announcement");
 const turboParticles = document.querySelector("#turbo-particles");
+const turboLightning = document.querySelector("#turbo-lightning");
+const turboLightningBoltsPool = [...turboLightning.querySelectorAll(".turbo-lightning-bolt")];
+const turboLightningFlash = turboLightning.querySelector(".turbo-lightning-flash");
 
 let population = 1;
 let goalProgress = 1;
@@ -43,7 +50,7 @@ let audioContext;
 let goalReached = false;
 let turboTimeout;
 let announcementTimeout;
-let turboFireInterval;
+let turboLightningTimeout;
 
 function startBackgroundMusic(track) {
     musicUnlocked = true;
@@ -217,6 +224,7 @@ function resetGame() {
     const dog = firstDog.cloneNode(true);
     dogPark.replaceChildren(dog);
     placeDogRandomly(dog);
+    animateDogSpawn(dog);
     population = 1;
     goalProgress = 1;
     turboGoalCycle = false;
@@ -286,6 +294,14 @@ function placeDogRandomly(dog) {
     dog.style.top = `${position.y}px`;
 }
 
+function animateDogSpawn(dog) {
+    const image = dog.querySelector("img");
+    image.classList.add("is-spawning");
+    image.addEventListener("animationend", () => {
+        image.classList.remove("is-spawning");
+    }, { once: true });
+}
+
 function createDog() {
     const dog = firstDog.cloneNode(true);
     const turboModeActive = document.body.classList.contains("turbo-mode");
@@ -353,11 +369,79 @@ function createTurboParticles() {
     }
 }
 
+function scheduleTurboLightning() {
+    if (!document.body.classList.contains("turbo-mode")) {
+        return;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const delay = prefersReducedMotion
+        ? 650 + Math.random() * 500
+        : 220 + Math.random() * 330;
+
+    turboLightningTimeout = window.setTimeout(() => {
+        const boltCount = prefersReducedMotion ? 2 : (Math.random() < 0.15 ? 1 : 2);
+        const availableBolts = turboLightningBoltsPool.filter(
+            (image) => !image.classList.contains("is-striking")
+        );
+        const x = 4 + Math.random() * 82;
+        const y = Math.random() * 38;
+        const flashIntensity = prefersReducedMotion
+            ? 0.12 + Math.random() * 0.08
+            : 0.2 + Math.random() * 0.18;
+
+        turboLightning.hidden = false;
+        turboLightningFlash.classList.remove("is-flashing");
+        turboLightningFlash.style.setProperty("--flash-intensity", flashIntensity);
+        turboLightningFlash.style.background = `radial-gradient(ellipse at ${x}% ${y}vh, rgb(205 242 255 / 45%), transparent 58%), rgb(190 232 255 / 12%)`;
+        void turboLightningFlash.offsetWidth;
+        turboLightningFlash.classList.add("is-flashing");
+
+        availableBolts.slice(0, boltCount).forEach((image, index) => {
+            const bolt = turboLightningBolts[Math.floor(Math.random() * turboLightningBolts.length)];
+            const boltX = Math.max(2, Math.min(84, x + (index === 0 ? 0 : Math.random() * 42 - 21)));
+            const boltY = Math.max(0, Math.min(38, y + (index === 0 ? 0 : Math.random() * 24 - 12)));
+
+            image.classList.remove("is-striking");
+            image.style.setProperty("--bolt-x", `${boltX}%`);
+            image.style.setProperty("--bolt-y", `${boltY}vh`);
+            image.src = bolt;
+            void image.offsetWidth;
+            image.classList.add("is-striking");
+        });
+
+        scheduleTurboLightning();
+    }, delay);
+}
+
+function clearTurboLightning() {
+    window.clearTimeout(turboLightningTimeout);
+    turboLightningTimeout = undefined;
+    turboLightningBoltsPool.forEach((image) => {
+        image.classList.remove("is-striking");
+        image.removeAttribute("src");
+    });
+    turboLightningFlash.classList.remove("is-flashing");
+    turboLightning.hidden = true;
+}
+
+turboLightningBoltsPool.forEach((image) => {
+    image.addEventListener("animationend", () => {
+        image.classList.remove("is-striking");
+        image.removeAttribute("src");
+
+        if (!turboLightningBoltsPool.some((bolt) => bolt.classList.contains("is-striking"))) {
+            turboLightning.hidden = true;
+        }
+    });
+});
+
 function activateTurboMode() {
     window.clearTimeout(turboTimeout);
     window.clearTimeout(announcementTimeout);
-    window.clearInterval(turboFireInterval);
     document.body.classList.add("turbo-mode");
+    clearTurboLightning();
+    scheduleTurboLightning();
     dogPark.querySelectorAll(".dog.is-turbo-dog").forEach((dog) => dog.remove());
     updateDogsForTurboMode(true);
     goalProgress = 0;
@@ -365,12 +449,6 @@ function activateTurboMode() {
     goalReached = false;
     goalBanner.classList.remove("completed");
     updateGoalProgressDisplay();
-    let fireFrame = 0;
-    document.body.style.setProperty("--turbo-fire-frame", `url("${turboFireFrames[fireFrame]}")`);
-    turboFireInterval = window.setInterval(() => {
-        fireFrame = (fireFrame + 1) % turboFireFrames.length;
-        document.body.style.setProperty("--turbo-fire-frame", `url("${turboFireFrames[fireFrame]}")`);
-    }, 120);
     turboAnnouncement.hidden = true;
     turboAnnouncement.getBoundingClientRect();
     turboAnnouncement.hidden = false;
@@ -385,12 +463,10 @@ function activateTurboMode() {
 function endTurboMode(checkNormalGoal = true) {
     window.clearTimeout(turboTimeout);
     window.clearTimeout(announcementTimeout);
-    window.clearInterval(turboFireInterval);
     turboTimeout = undefined;
     announcementTimeout = undefined;
-    turboFireInterval = undefined;
+    clearTurboLightning();
     document.body.classList.remove("turbo-mode");
-    document.body.style.removeProperty("--turbo-fire-frame");
     updateDogsForTurboMode(false);
     turboAnnouncement.hidden = true;
     turboParticles.replaceChildren();
@@ -415,6 +491,7 @@ function keepDogsInBounds() {
 }
 
 placeDogRandomly(dogPark.querySelector(".dog"));
+animateDogSpawn(dogPark.querySelector(".dog"));
 window.addEventListener("resize", keepDogsInBounds);
 
 dogPark.addEventListener("click", (event) => {
@@ -456,6 +533,7 @@ dogPark.addEventListener("click", (event) => {
         const dog = createDog();
         dogPark.append(dog);
         placeDogRandomly(dog);
+        animateDogSpawn(dog);
     }
 
     const previousPopulation = population;
