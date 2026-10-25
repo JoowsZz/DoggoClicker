@@ -38,6 +38,7 @@ const turboMusicTrack = "assets/turbo-music.mp3";
 const turboAnnouncement = document.querySelector("#turbo-announcement");
 const turboParticles = document.querySelector("#turbo-particles");
 const turboLightning = document.querySelector("#turbo-lightning");
+const impactParticles = document.querySelector("#impact-particles");
 const turboLightningBoltsPool = [...turboLightning.querySelectorAll(".turbo-lightning-bolt")];
 const turboLightningFlash = turboLightning.querySelector(".turbo-lightning-flash");
 
@@ -302,6 +303,47 @@ function animateDogSpawn(dog) {
     }, { once: true });
 }
 
+function createImpactParticles(dog) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+    }
+
+    const parkBounds = dogPark.getBoundingClientRect();
+    const dogBounds = dog.getBoundingClientRect();
+    const centerX = dogBounds.left - parkBounds.left + dogBounds.width / 2;
+    const centerY = dogBounds.top - parkBounds.top + dogBounds.height / 2;
+    const particleCount = 6;
+
+    for (let index = 0; index < particleCount; index += 1) {
+        const angle = (index / particleCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+        const distance = 30 + Math.random() * 22;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        const startRotation = Math.random() * 50 - 25;
+        const rotation = Math.random() * 180 - 90;
+        const scale = 0.85 + Math.random() * 0.35;
+        const particle = document.createElement("span");
+
+        particle.className = `impact-droplet impact-droplet-shape-${Math.floor(Math.random() * 3) + 1}`;
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.setProperty("--droplet-x", `${x}px`);
+        particle.style.setProperty("--droplet-y", `${y}px`);
+        particle.style.setProperty("--droplet-mid-x", `${x * 0.82}px`);
+        particle.style.setProperty("--droplet-mid-y", `${y * 0.82}px`);
+        particle.style.setProperty("--droplet-size", `${9 + Math.random() * 6}px`);
+        particle.style.setProperty("--droplet-start-rotation", `${startRotation}deg`);
+        particle.style.setProperty("--droplet-mid-rotation", `${startRotation + rotation * 0.82}deg`);
+        particle.style.setProperty("--droplet-final-rotation", `${startRotation + rotation}deg`);
+        particle.style.setProperty("--droplet-scale", `${scale}`);
+        particle.style.setProperty("--droplet-mid-scale", `${scale * 0.9}`);
+        particle.style.setProperty("--droplet-duration", `${300 + Math.random() * 130}ms`);
+        particle.addEventListener("animationend", () => particle.remove(), { once: true });
+        particle.addEventListener("animationcancel", () => particle.remove(), { once: true });
+        impactParticles.append(particle);
+    }
+}
+
 function createDog() {
     const dog = firstDog.cloneNode(true);
     const turboModeActive = document.body.classList.contains("turbo-mode");
@@ -504,6 +546,7 @@ dogPark.addEventListener("click", (event) => {
     ) {
         return;
     }
+    createImpactParticles(clickedDog);
     clickedDog.classList.add("is-processing");
     const isTurboDog = clickedDog.classList.contains("is-turbo-dog");
     if (isTurboDog) {

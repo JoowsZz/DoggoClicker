@@ -239,6 +239,97 @@ body {
     isolation: isolate;
 }
 
+.impact-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.impact-droplet {
+    position: absolute;
+    width: var(--droplet-size);
+    height: calc(var(--droplet-size) + 3px);
+    background: var(--droplet-color);
+    box-shadow: inset -1px -2px 0 rgb(56 92 125 / 12%), 0 2px 2px rgb(48 69 89 / 16%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: impact-droplet-burst var(--droplet-duration) cubic-bezier(.12, .76, .32, 1) both;
+}
+
+.impact-droplet::after {
+    position: absolute;
+    top: 19%;
+    left: 22%;
+    width: 25%;
+    height: 17%;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 75%);
+    content: "";
+}
+
+.impact-droplet-shape-1 {
+    border-radius: 55% 48% 52% 10% / 48% 52% 48% 12%;
+}
+
+.impact-droplet-shape-2 {
+    border-radius: 48% 56% 12% 52% / 52% 48% 12% 52%;
+}
+
+.impact-droplet-shape-3 {
+    border-radius: 52% 45% 50% 14% / 45% 54% 46% 18%;
+}
+
+.impact-droplet:nth-child(4n + 1) {
+    --droplet-color: #8edcf2;
+}
+
+.impact-droplet:nth-child(4n + 2) {
+    --droplet-color: #ffd477;
+}
+
+.impact-droplet:nth-child(4n + 3) {
+    --droplet-color: #ff9fc4;
+}
+
+.impact-droplet:nth-child(4n) {
+    --droplet-color: #aee6a2;
+}
+
+@keyframes impact-droplet-burst {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.2) rotate(var(--droplet-start-rotation));
+    }
+
+    18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(var(--droplet-scale)) rotate(var(--droplet-start-rotation));
+    }
+
+    72% {
+        opacity: .9;
+        transform: translate(
+                calc(-50% + var(--droplet-mid-x)),
+                calc(-50% + var(--droplet-mid-y))
+            )
+            scale(var(--droplet-mid-scale))
+            rotate(var(--droplet-mid-rotation));
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(
+                calc(-50% + var(--droplet-x)),
+                calc(-50% + var(--droplet-y))
+            )
+            scale(.72)
+            rotate(var(--droplet-final-rotation));
+    }
+}
+
 .turbo-announcement {
     position: fixed;
     top: 42%;
