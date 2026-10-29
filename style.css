@@ -8,6 +8,20 @@ body {
     transition: background 350ms ease, color 350ms ease;
 }
 
+.turbo-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.turbo-background[hidden] {
+    display: none;
+}
+
 .game {
     display: flex;
     flex-direction: column;
@@ -17,6 +31,144 @@ body {
     height: 100dvh;
     padding: 28px 20px 88px;
     box-sizing: border-box;
+}
+
+.goal-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: -8px;
+}
+
+.combo-counter {
+    position: fixed;
+    top: 22vh;
+    left: 22vw;
+    z-index: 2;
+    flex: 0 0 auto;
+    min-width: 112px;
+    padding: 8px 12px 7px;
+    border: 3px solid #fff4a8;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #ffdf70, #ff9fba 58%, #d890ff);
+    color: #552d61;
+    box-shadow: 0 6px 0 #a45c80, 0 0 22px rgb(255 244 168 / 65%);
+    transform: translate(-50%, -50%) rotate(-3deg);
+}
+
+.combo-counter[hidden] {
+    display: none;
+}
+
+.combo-counter-label,
+.combo-counter-record,
+.combo-counter-dps {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.combo-counter-label {
+    font-size: 13px;
+}
+
+.combo-counter-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    line-height: 1;
+    text-shadow: 2px 2px 0 #fff4a8;
+}
+
+.combo-counter-score > span:first-child {
+    align-self: flex-start;
+    margin-top: 8px;
+    font-size: 20px;
+}
+
+.combo-counter-score strong {
+    display: inline-block;
+    font-size: 38px;
+}
+
+.combo-counter-score strong.is-popping {
+    animation: combo-number-pop 320ms cubic-bezier(.2, 1.5, .5, 1);
+}
+
+.combo-counter-paw {
+    font-size: 19px;
+}
+
+.combo-counter-record,
+.combo-counter-dps {
+    font-size: 11px;
+}
+
+.combo-counter-record strong,
+.combo-counter-dps strong {
+    font-size: 14px;
+}
+
+.combo-counter-dps strong {
+    color: #71347d;
+}
+
+.combo-counter-timer {
+    height: 7px;
+    margin-top: 7px;
+    overflow: hidden;
+    border: 1px solid rgb(85 45 97 / 45%);
+    border-radius: 999px;
+    background: rgb(85 45 97 / 18%);
+}
+
+.combo-counter-timer-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #fff4a8, #fff, #fff4a8);
+    transform: scaleX(1);
+    transform-origin: left center;
+}
+
+.combo-counter-timer-fill.is-draining {
+    animation: combo-timer-drain 2s linear forwards;
+}
+
+.combo-counter.is-counting {
+    animation: combo-bump 300ms cubic-bezier(.2, 1.5, .5, 1);
+}
+
+.combo-counter.is-expired {
+    filter: grayscale(.45);
+}
+
+@keyframes combo-bump {
+    45% {
+        transform: translate(-50%, -50%) rotate(3deg) scale(1.16);
+        box-shadow: 0 8px 0 #a45c80, 0 0 34px rgb(255 244 168 / 95%);
+    }
+}
+
+@keyframes combo-number-pop {
+    45% {
+        transform: scale(1.55) rotate(-8deg);
+    }
+
+    75% {
+        transform: scale(.88) rotate(4deg);
+    }
+}
+
+@keyframes combo-timer-drain {
+    to {
+        transform: scaleX(0);
+    }
 }
 
 .game h1 {
@@ -41,7 +193,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    margin-top: -8px;
     padding: 10px 22px;
     border: 3px solid #fff4a8;
     border-radius: 18px;
@@ -182,7 +333,7 @@ body {
     height: 128px;
 }
 
-.dog.is-fire-dog img {
+.dog.is-electric-dog img {
     width: auto;
     height: 128px;
 }
@@ -201,6 +352,14 @@ body {
     min-height: 0;
     padding: 8px 0;
     box-sizing: border-box;
+}
+
+.game-statistics {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 20px;
 }
 
 .population {
@@ -339,17 +498,17 @@ body {
     max-width: calc(100vw - 32px);
     margin: 0;
     padding: 12px 18px;
-    border: 3px solid #fff36b;
-    background: #8a20cc;
-    color: #fff36b;
+    border: 3px solid #a8f0ff;
+    background: #0756c9;
+    color: #d7f8ff;
     font-size: clamp(22px, 6vw, 44px);
     font-weight: 700;
     line-height: 1.15;
-    text-shadow: 3px 3px 0 #e32d25;
-    box-shadow: 5px 5px 0 #e32d25;
+    text-shadow: 3px 3px 0 #063b91;
+    box-shadow: 5px 5px 0 #063b91, 0 0 24px rgb(80 204 255 / 55%);
     transform: translate(-50%, -50%);
     pointer-events: none;
-    animation: turbo-announcement 2600ms ease-out both;
+    animation: turbo-announcement 2600ms cubic-bezier(.2, 1.4, .4, 1) both;
 }
 
 .turbo-announcement[hidden] {
@@ -359,23 +518,28 @@ body {
 @keyframes turbo-announcement {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(.15) rotate(-14deg);
+        filter: brightness(1.6);
+        transform: translate(-50%, -50%) scale(.08) rotate(-18deg);
     }
 
-    6% {
+    5% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.32) rotate(4deg);
+        transform: translate(-50%, -50%) scale(1.42) rotate(6deg);
     }
 
-    10% {
-        transform: translate(-50%, -50%) scale(.88) rotate(-3deg);
+    9% {
+        transform: translate(-50%, -50%) scale(.78) rotate(-4deg);
     }
 
-    15% {
-        transform: translate(-50%, -50%) scale(1.06) rotate(2deg);
+    13% {
+        transform: translate(-50%, -50%) scale(1.14) rotate(2deg);
     }
 
-    20%,
+    17% {
+        transform: translate(-50%, -50%) scale(.96) rotate(-1deg);
+    }
+
+    21%,
     72% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1) rotate(0);
@@ -404,79 +568,6 @@ body {
     background: #ffdf36;
     image-rendering: pixelated;
     animation: turbo-particle-burst 900ms steps(5, end) both;
-}
-
-.turbo-lightning {
-    position: fixed;
-    inset: 0;
-    z-index: 3;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.turbo-lightning[hidden] {
-    display: none;
-}
-
-.turbo-lightning-bolt {
-    position: absolute;
-    top: var(--bolt-y);
-    left: var(--bolt-x);
-    width: clamp(90px, 17vw, 190px);
-    height: min(58vh, 420px);
-    object-fit: contain;
-    image-rendering: pixelated;
-    filter: hue-rotate(135deg) saturate(2.4) brightness(1.35)
-        drop-shadow(0 0 5px #60eaff) drop-shadow(0 0 13px #36baff);
-    opacity: 0;
-    transform: translateY(-12px) scale(.92);
-}
-
-.turbo-lightning-bolt.is-striking {
-    animation: lightning-strike 220ms steps(2, end) both;
-}
-
-.turbo-lightning-flash {
-    position: absolute;
-    inset: 0;
-    background: rgb(190 232 255 / 18%);
-    opacity: 0;
-}
-
-.turbo-lightning-flash.is-flashing {
-    animation: lightning-flash 110ms ease-out both;
-}
-
-@keyframes lightning-strike {
-    0% {
-        opacity: 0;
-        transform: translateY(-12px) scale(.92);
-    }
-
-    14% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    38% {
-        opacity: .85;
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateY(10px) scale(1.02);
-    }
-}
-
-@keyframes lightning-flash {
-    0%,
-    100% {
-        opacity: 0;
-    }
-
-    24% {
-        opacity: var(--flash-intensity);
-    }
 }
 
 .turbo-particle:nth-child(3n) {
@@ -509,9 +600,15 @@ body.turbo-mode .game h1 {
 }
 
 body.turbo-mode .goal-banner {
-    border-color: #fff36b;
-    background: linear-gradient(120deg, #ffdf36, #ff4b29, #c14bff);
-    color: #39134a;
+    border-color: #a8f0ff;
+    background: linear-gradient(120deg, #d7f8ff, #4ca9ff, #0756c9);
+    color: #063b91;
+    box-shadow: 0 5px 0 #063b91, 0 0 24px rgb(80 204 255 / 55%);
+}
+
+body.turbo-mode .goal-banner strong {
+    color: #fff;
+    text-shadow: 1px 2px 0 #0756c9;
 }
 
 .utility-button {
@@ -646,8 +743,10 @@ body.turbo-mode .volume-pot::before {
 .victory-dialog {
     width: min(420px, calc(100% - 40px));
     max-width: none;
+    max-height: calc(100dvh - 24px);
     padding: 0;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
     border: 3px solid #fff4a8;
     border-radius: 28px;
     background: linear-gradient(145deg, #efa9ae, #c58286);
@@ -712,14 +811,50 @@ body.turbo-mode .volume-pot::before {
     text-shadow: 2px 3px 0 #a45c80;
 }
 
-.victory-message,
-.victory-cheer {
+.victory-message {
     margin: 8px 0;
     font-size: 17px;
 }
 
 .victory-message strong {
     color: #fff4a8;
+}
+
+.victory-stats {
+    margin: 16px 0;
+    padding: 12px 10px;
+    border-block: 1px solid rgb(255 244 168 / 65%);
+}
+
+.victory-run-summary {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.victory-run-summary span,
+.victory-local-records span {
+    display: block;
+}
+
+.victory-run-summary strong,
+.victory-local-records strong {
+    color: #fff4a8;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.victory-local-records {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.victory-encouragement {
+    margin: 16px 0;
+    color: #fff4a8;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .play-again-button {
@@ -750,7 +885,92 @@ body.turbo-mode .volume-pot::before {
     outline-offset: 4px;
 }
 
+@media (max-height: 680px) {
+    .victory-card {
+        padding: 10px 18px;
+    }
+
+    .victory-confetti {
+        margin-bottom: 0;
+        font-size: 28px;
+    }
+
+    .victory-confetti img {
+        height: 58px;
+    }
+
+    .victory-card h2 {
+        margin: 3px 0 6px;
+        font-size: 36px;
+    }
+
+    .victory-message {
+        margin: 5px 0;
+        font-size: 15px;
+    }
+
+    .victory-stats {
+        margin: 8px 0;
+        padding: 8px;
+    }
+
+    .victory-run-summary {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .victory-local-records {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .victory-encouragement {
+        margin: 8px 0;
+    }
+
+    .victory-encouragement {
+        margin: 6px 0;
+        font-size: 13px;
+    }
+
+    .play-again-button {
+        margin-top: 8px;
+        padding: 8px 18px;
+    }
+}
+
 @media (max-width: 480px) {
+    .goal-row {
+        gap: 7px;
+    }
+
+    .combo-counter-label {
+        font-size: 10px;
+    }
+
+    .combo-counter-score strong {
+        font-size: 32px;
+    }
+
+    .combo-counter-paw {
+        font-size: 16px;
+    }
+
+    .combo-counter {
+        min-width: 94px;
+        padding: 7px 8px 6px;
+    }
+
+    .goal-banner {
+        gap: 6px;
+        padding: 9px 10px;
+    }
+
+    .goal-banner p {
+        font-size: 15px;
+    }
+
     .utility-button {
         bottom: 14px;
         padding: 9px 13px;
@@ -785,26 +1005,6 @@ body.turbo-mode .volume-pot::before {
         animation-name: dog-spawn-pop-reduced;
     }
 
-    .turbo-lightning-bolt.is-striking {
-        animation-name: lightning-strike-reduced;
-        animation-duration: 150ms;
-    }
-
-    @keyframes lightning-strike-reduced {
-        0%,
-        100% {
-            opacity: 0;
-        }
-
-        20% {
-            opacity: .72;
-        }
-    }
-
-    .turbo-lightning-flash.is-flashing {
-        animation-duration: 70ms;
-    }
-
     @keyframes dog-spawn-pop-reduced {
         0% {
             transform: scale(.96);
@@ -826,9 +1026,38 @@ body.turbo-mode .volume-pot::before {
     .goal-banner,
     .goal-sparkle,
     .goal-banner.completed,
-    .turbo-announcement,
+    .combo-counter.is-counting,
     .turbo-particle {
         animation: none;
+    }
+
+    .turbo-announcement {
+        animation-name: turbo-announcement-reduced;
+        animation-duration: 2600ms;
+        animation-timing-function: ease-out;
+    }
+
+    @keyframes turbo-announcement-reduced {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(.88);
+        }
+
+        10% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.08);
+        }
+
+        20%,
+        72% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(-50%, -58%) scale(.98);
+        }
     }
 
 }

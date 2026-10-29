@@ -12,18 +12,36 @@
 </head>
 <body>
 
+    <img class="turbo-background" id="turbo-background" alt="" aria-hidden="true" hidden>
     <main class="game">
         <h1><img src="./img/logo doggo.png" alt="Doguinhologo" height="150"></h1>
 
        <p class="subtitle">O melhor amigo em 8 bits</p>
-       <div class="goal-banner" id="goal-banner">
-           <span class="goal-sparkle" aria-hidden="true">✨</span>
-           <p>OBJETIVO: <strong id="goal-progress">1/20</strong> DOGUINHOS</p>
-           <span class="goal-sparkle" aria-hidden="true">✨</span>
+       <div class="goal-row">
+           <aside class="combo-counter" id="combo-counter" aria-live="polite" aria-atomic="true" hidden>
+               <p class="combo-counter-label" id="combo-counter-label">COMBO AU-AU!</p>
+               <div class="combo-counter-score">
+                   <span aria-hidden="true">×</span>
+                   <strong id="combo-count">0</strong>
+                   <span class="combo-counter-paw" aria-hidden="true">🐾</span>
+               </div>
+               <p class="combo-counter-record">RECORDE <strong id="best-combo">0</strong></p>
+               <p class="combo-counter-dps">DPS <strong id="dogs-per-second">0,0</strong></p>
+               <div class="combo-counter-timer" aria-hidden="true">
+                   <span class="combo-counter-timer-fill" id="combo-counter-timer-fill"></span>
+               </div>
+           </aside>
+           <div class="goal-banner" id="goal-banner">
+               <span class="goal-sparkle" aria-hidden="true">✨</span>
+               <p>OBJETIVO: <strong id="goal-progress">1/20</strong> DOGUINHOS</p>
+               <span class="goal-sparkle" aria-hidden="true">✨</span>
+           </div>
        </div>
 
        <section class="game-screen" aria-label="Jogo Doggo Clicker">
-           <p class="population">População: <strong id="population">1</strong></p>
+           <div class="game-statistics">
+               <p class="population">População: <strong id="population">1</strong></p>
+           </div>
            <p class="instruction" id="game-message" aria-live="polite">Clique no doguinho para multiplicar!</p>
            <div class="dog-park" id="dog-park" aria-label="Doguinho">
                <div class="impact-particles" id="impact-particles" aria-hidden="true"></div>
@@ -33,14 +51,8 @@
            </div>
        </section>
        <p class="turbo-announcement" id="turbo-announcement" aria-live="assertive" hidden>
-           MODO TURBO AU-AU 🔥
+           MODO ELETRIZANTE
        </p>
-       <div class="turbo-lightning" id="turbo-lightning" aria-hidden="true" hidden>
-           <span class="turbo-lightning-flash"></span>
-           <img class="turbo-lightning-bolt" alt="">
-           <img class="turbo-lightning-bolt" alt="">
-           <img class="turbo-lightning-bolt" alt="">
-       </div>
        <div class="turbo-particles" id="turbo-particles" aria-hidden="true"></div>
 
        <button id="reset-button" class="utility-button" type="button">↻ Recomeçar</button>
@@ -63,13 +75,25 @@
             <p class="victory-eyebrow" id="victory-eyebrow">MISSÃO CUMPRIDA</p>
             <h2 id="victory-title">Você conseguiu!</h2>
             <p class="victory-message">Você reuniu <strong id="victory-goal">20 doguinhos</strong>!</p>
-            <p class="victory-cheer" id="victory-cheer">Au au! Você é demais! 🐾</p>
+            <section class="victory-stats" aria-label="Seu desempenho">
+                <p class="victory-run-summary">
+                    <span>Você clicou <strong id="victory-collections">0</strong> vezes.</span>
+                    <span>Fez <strong id="victory-run-combo">0</strong> cliques seguidos.</span>
+                    <span>Chegou a <strong id="victory-run-dps">0,0</strong> doguinhos por segundo!</span>
+                </p>
+                <p class="victory-local-records">
+                    <span>🏆 Na sua melhor rodada:</span>
+                    <span><strong id="victory-local-combo">0</strong> cliques seguidos.</span>
+                    <span><strong id="victory-local-dps">0,0</strong> doguinhos por segundo.</span>
+                </p>
+            </section>
+            <p class="victory-encouragement" id="victory-encouragement"></p>
             <button id="play-again-button" class="play-again-button" type="button">
                 <span id="play-again-label">Jogar de novo</span>
             </button>
         </div>
     </dialog>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
     
 </body>
 </html>
